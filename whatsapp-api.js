@@ -39,6 +39,29 @@ function criarContato(contato) {
     card.addEventListener('click', () => preencherConversa(contato.name))
 }
 
+async function preencherContatos() {
+    const contatos = await pesquisarContatos()
+    contatos.dados_contato.forEach(criarContato)
+}
+
+async function pesquisarConversa(name) {
+    const url = `https://giovanna-whatsapp.onrender.com/v1/whatsapp/conversas?numero=11987876567&contato=${name}`
+    try {
+        const response = await fetch(url)
+        const data = await response.json()
+        return data
+    } catch (error) {
+        console.error("Erro ao buscar conversa:", error)
+        return null
+    }
+}
+
+async function preencherConversa(name) {
+    const data = await pesquisarConversa(name)
+    const conversa = data.conversas[0]
+    criarConversa(conversa)
+}
+
 async function criarConversa(conversa){
     const conversas = document.querySelector('.conversas')
 
@@ -60,11 +83,12 @@ async function criarConversa(conversa){
     chat.classList.add('chat')
 
     conversa.conversas.forEach(msg => {
-        const bubble = document.createElement('div')
+        const caixinhaMsg = document.createElement('div')
+        //se a mensagem for minha, vira a classe mensagem enviada, se for do outro vira mensagem recebida.
         const classe = msg.sender === 'me' ? 'mensagem-enviada' : 'mensagem-recebida'
-        bubble.classList.add(classe)
-        bubble.textContent = msg.content
-        chat.appendChild(bubble)
+        caixinhaMsg.classList.add(classe)
+        caixinhaMsg.textContent = msg.content
+        chat.appendChild(caixinhaMsg)
     })
 
     conversas.appendChild(chat)
@@ -72,3 +96,4 @@ async function criarConversa(conversa){
 
 
 preencherContatos()
+
